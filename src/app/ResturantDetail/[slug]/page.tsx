@@ -1,4 +1,4 @@
-"use client"
+
 import React from 'react'
 import { PrismaClient } from '@prisma/client'
 import Title from '../components/Title'

@@ -2,6 +2,7 @@
 import React from "react";
 import { ProductList } from "../page";
 import Link from "next/link";
+import Price from "./price";
 
 export default function ResturantCard(props: ProductList){
     return(       
@@ -27,8 +28,9 @@ export default function ResturantCard(props: ProductList){
                </div>
                <div className="flex text-reg font-light capitalize">
                  <p className=" mr-3">{items.name}</p>
-                 <p className="mr-3">{items.price}$</p>
-                 <p>Toronto</p>
+                 {/* <p className="mr-3">{items.price}$</p> */}
+                 <Price prices={items.price}/>
+                 {/* <p>Toronto</p> */}
                </div>
                {/* <p className="text-sm mt-1 font-bold">{items.location}</p> */}
              </div>
