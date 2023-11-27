@@ -30,14 +30,11 @@ export default function Header(){
             onClick={()=>{
               if(searchLocation==null) return;
 
-              router.push(`/search?city=${searchLocation}`);
+              router.push(`/Search?city=${searchLocation}`);
               setSearchLocation("");
-            }
-
-            
+            }            
             }>
-            
-
+            Let's go!
             </button>
           </div>
           {/* SEARCH BAR */}
