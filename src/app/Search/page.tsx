@@ -17,24 +17,41 @@ const fetchRestaurantByCity= async(city:string|undefined,cuis:string|undefined)=
   price:true,
   slug:true
  }
- if(!city)
- return await prisma.restaurant.findMany({select})
-const restaurants = await prisma.restaurant.findMany({
-  where:{
-    location:{
-      name:{
-        equals:city.toLowerCase()
+
+ 
+ if(!city && !cuis){
+   return await prisma.restaurant.findMany({select})
+ }
+ else if(city){
+   const restaurants = await prisma.restaurant.findMany({
+     where:{
+       location:{
+         name:{
+           equals:city.toLowerCase()
+         }
+       }
+     },
+     select
+   });
+   return restaurants
+ }
+ else if(cuis){
+   const restaurants = await prisma.restaurant.findMany({
+    where:{
+      cuisine:{
+        name:{
+          equals:cuis.toLowerCase()
+        }
       }
-    }
-  },
-  select
-});
-if(!cuis)
-return restaurants;
-const filterdRestaurants = restaurants.filter((restaurants) =>
-  restaurants.cuisine.name === cuis.toLowerCase()
-);
-return filterdRestaurants;
+    },
+    select
+   });
+   return restaurants
+ }
+ else{
+  return []
+ }
+
 }
 
 const fetchLocations = async()=>{
