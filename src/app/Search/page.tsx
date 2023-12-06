@@ -1,15 +1,13 @@
 
-import React, {useState,useEffect} from 'react'
 import Header from '../component/header';
 import Navbar from '../component/navbar';
 import { PrismaClient } from '@prisma/client';
-import RestaurantCards from './components/restaurantCards';
 import Link from 'next/link';
 import ResturantCard from '../component/card';
 
 const prisma = new PrismaClient();
 
-const fetchRestaurantByCity= async(city:string|undefined)=>{
+const fetchRestaurantByCity= async(city:string|undefined,cuis:string|undefined)=>{
  const select = {
   id:true,
   name:true,
@@ -31,7 +29,12 @@ const restaurants = await prisma.restaurant.findMany({
   },
   select
 });
+if(!cuis)
 return restaurants;
+const filterdRestaurants = restaurants.filter((restaurants) =>
+  restaurants.cuisine.name === cuis.toLowerCase()
+);
+return filterdRestaurants;
 }
 
 const fetchLocations = async()=>{
@@ -42,8 +45,8 @@ const fetchCuisines = async()=>{
   return prisma.cuisine.findMany();
 }
 
-export default async function Search({searchParams}:{searchParams:{city:string|undefined}}) {
-  const restaurant = await fetchRestaurantByCity(searchParams.city)
+export default async function Search({searchParams}:{searchParams:{city:string|undefined, cuis:string|undefined}}) {
+  const restaurant = await fetchRestaurantByCity(searchParams.city,searchParams.cuis)
   const locations = await fetchLocations();
   const cuisines = await fetchCuisines();
   return(
@@ -69,7 +72,12 @@ export default async function Search({searchParams}:{searchParams:{city:string|u
           <h1 className='mb-2'>Cuisine</h1>
             {
               cuisines.map((items) =>(
-                <p key={items.id}>{items.name}</p>
+                <p key={items.id}><Link href={{
+                  pathname:"/Search",
+                  query:{
+                    cuis: items.name
+                  }
+                }}className='font-light text-reg' key={items.id}>{items.name}</Link></p>
               ))
             }
           </div>
