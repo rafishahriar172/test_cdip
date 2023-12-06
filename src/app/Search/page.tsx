@@ -1,52 +1,93 @@
-"use client"
+
 import React, {useState,useEffect} from 'react'
 import Header from '../component/header';
 import Navbar from '../component/navbar';
-import { useSearchParams } from 'next/navigation';
-import { PRICE,PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import RestaurantCards from './components/restaurantCards';
+import Link from 'next/link';
+import ResturantCard from '../component/card';
 
-// const prisma = new PrismaClient();
+const prisma = new PrismaClient();
 
-// export interface Location{
-//   id :number; 
-//   name : String;
-// }
-// export interface Cuisine{
-//   id :number; 
-//   name : String;
-// }
+const fetchRestaurantByCity= async(city:string|undefined)=>{
+ const select = {
+  id:true,
+  name:true,
+  main_image:true,
+  cuisine:true,
+  location:true,
+  price:true,
+  slug:true
+ }
+ if(!city)
+ return await prisma.restaurant.findMany({select})
+const restaurants = await prisma.restaurant.findMany({
+  where:{
+    location:{
+      name:{
+        equals:city.toLowerCase()
+      }
+    }
+  },
+  select
+});
+return restaurants;
+}
 
-// export interface Restaurant{
-//   id: number;
-//   name: String;
-//   main_image: string;
-//   location : Location;
-//   cuisine : Cuisine
-//   price:PRICE
-//   slug:string
-  
-// }
+const fetchLocations = async()=>{
+  return prisma.location.findMany();
+}
 
+const fetchCuisines = async()=>{
+  return prisma.cuisine.findMany();
+}
 
-const Search = () => {
-  const searchParams = useSearchParams();
-  const searchLocation = searchParams.get('city');
-  // const RestaurantDetails = await getRestaurantDetails(searchLocation)
-
-  console.log(searchLocation)
-
-  return (
-    <main className="bg-gray-100 min-h-screen w-screen">
-      <main className="max-w-screen-2xl m-auto bg-white">
-        <Navbar />
-        <Header />
-        <div className="flex py-4 m-auto w-2/3 justify-between items-start">
-          
+export default async function Search({searchParams}:{searchParams:{city:string|undefined}}) {
+  const restaurant = await fetchRestaurantByCity(searchParams.city)
+  const locations = await fetchLocations();
+  const cuisines = await fetchCuisines();
+  return(
+    <>
+      <Navbar/>
+      <Header/>
+      <div className='flex py-4 m-auto w-2/3 justify-between items-start'>
+        <div className='w-1/5'>
+          <div className='border-b pb-4'>
+          <h1 className='mb-2'>Region</h1>
+          {
+            locations.map((location) =>(
+              <p key={location.id}><Link href={{
+                pathname:"/Search",
+                query:{
+                  city:location.name
+                }
+              }} className='font-light text-reg' key={location.id}>{location.name}</Link></p>
+            ))
+          }
+          </div>
+          <div className='border-b pb-4'>
+          <h1 className='mb-2'>Cuisine</h1>
+            {
+              cuisines.map((items) =>(
+                <p key={items.id}>{items.name}</p>
+              ))
+            }
+          </div>
+          <div className='mt-3 pb-4'>
+            <h1 className='mb-2'>Price</h1>
+            <div className="flex">
+              <div className="border w-full text-reg font-light rounder-1 p-2">
+                <button className="border w-full text-reg font-light p-2">$</button>
+                <button className="border w-full text-reg font-light p-2">$$</button>
+                <button className="border w-full text-reg font-light p-2">$$$</button>
+              </div>
+            </div>
+          </div>
         </div>
-      </main>
-    </main>
-  );
-};
+      </div>
+      {restaurant.length>0 ? <ResturantCard products={restaurant} />:<p>No Restaurant Found</p>}
+    </>
+  )
+}
 
-export default Search;
+
