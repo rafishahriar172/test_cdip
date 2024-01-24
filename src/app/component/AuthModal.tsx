@@ -59,6 +59,9 @@ export default function AuthModal(SignIn:{isSignIn:boolean}) {
       >
         <Box sx={style}>
           <div className='uppercase front-bold text-center pb-2 border-b mb-2'>
+            <h4 className='uppcase text-red-500 font-bold text-center pb-2 border-b mb-2'>
+            {renderContent("For Sign In","Create an Account")}
+            </h4>
             <p className='text-sm'>
                 {renderContent("Sign In ","Create Account")}
             </p>
