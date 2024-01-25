@@ -44,6 +44,29 @@ export default function AuthModal(SignIn:{isSignIn:boolean}) {
     return SignIn.isSignIn ? signinContent : signupContent;
   }
 
+  const handelClick = async (isSignIn:boolean) => {
+    try{
+      if(!isSignIn){
+        const response = await fetch('/api/auth/signup', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(inputs),
+        });
+
+        const responseData = await response.json();
+      console.log(responseData);
+      }
+      else{
+  
+      }
+    }
+    catch{
+
+    }    
+  }
+
   return (
     <div>
         <button className={`${renderContent("bg-blue-400 text-white" , "")} border p-1 px-4 rounded mr-3`} onClick={handleOpen}>
@@ -66,7 +89,8 @@ export default function AuthModal(SignIn:{isSignIn:boolean}) {
                 {renderContent("Sign In ","Create Account")}
             </p>
                 <AuthModalInputs inputs={inputs} handelChangeInput={handelChangeInput} isSignup={SignIn.isSignIn}/>
-                <button className='uppercase bg-red-600 w-full text-white p-3 rounded text-sm mb-5 disabled:bg-grey 400'>
+                <button className='uppercase bg-red-600 w-full text-white p-3 rounded text-sm mb-5 disabled:bg-grey 400'
+                onClick={() => handelClick(SignIn.isSignIn)}>
                     {renderContent("Sign In","Create Account")}
                 </button>
           </div>
