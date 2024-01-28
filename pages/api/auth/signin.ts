@@ -53,9 +53,10 @@ export default async function handler(
 
     if (IsMatch) {
       const alg = "HS256";
+      const typ = "JWT";
 
       const token = await new jose.SignJWT({ email: userWithEmail.email })
-        .setProtectedHeader({ alg })
+        .setProtectedHeader({ alg,typ })
         .setExpirationTime("1h")
         .sign(secret);
 

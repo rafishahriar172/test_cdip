@@ -1,70 +1,30 @@
 import { NextApiRequest, NextApiResponse } from "next";
-import validator from 'validator';
+import jwt, { Secret } from "jsonwebtoken";
 import { PrismaClient } from "@prisma/client";
-import bcrypt from 'bcrypt';
-import * as jose from 'jose';
 
 const prisma = new PrismaClient();
 
-
 export default async function handler(
-    req: NextApiRequest,
-    res: NextApiResponse
+  req: NextApiRequest,
+  res: NextApiResponse
 ) {
-
-    if (req.method==="POST"){
-
-        const errors : string[]=[];
-        const {email,password}=req.body;
-
-
-        const validatorSchema=[
-
-            {
-                valid: validator.isEmail(email),
-                errorMessage: "Email is invalid"
-            },
-            {
-                valid: validator.isLength(password,{
-                    min:1
-                }),
-                errorMessage:"Password is invalid"
-            }
-
-        ]
-
-        validatorSchema.forEach((check)=>{
-            if(!check.valid){
-                errors.push(check.errorMessage)
-            }
-        });
-
-        if(errors.length){
-            return res.status(400).json({errorMessage:errors[0]})
-        }
-
-        const userWithEmail = await prisma.user.findUnique({
-            where:{email}
-        })
-
-        if(!userWithEmail){
-            return res.status(400).json({errorMessage:"User not found with this email!"})
-        }
-        
-         const secret=new TextEncoder().encode(process.env.JWT_Secret);
-
-        const IsMatch=await bcrypt.compare(password,userWithEmail.password);
-
-        if(IsMatch)
-        {
-            return res.status(200).json({Message:userWithEmail})
-        }
-        else
-        {
-            return res.status(400).json({errorMessage:"Password is invalid"})
-        }
-
-        
-
+  if (req.method === "GET") {
+    const token = req.headers.authorization;
+    
+    if (!token) {
+      return res.status(401).json({ errorMessage: "Authorization header is missing" });
     }
+
+    try {
+      const jwtSecret = Buffer.from(process.env.JWT_Secret || '', 'base64') as Secret;
+      const decodedToken = jwt.verify(token, jwtSecret);
+      
+      return res.status(200).json({decodeToken: decodedToken});
+
+    } catch (error) {
+      return res.status(401).json({ errorMessage: error });
+    }
+  } else {
+    return res.status(405).json({ errorMessage: "Method not allowed" });
+  }
 }

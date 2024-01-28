@@ -32,6 +32,11 @@ export default function AuthModal(SignIn:{isSignIn:boolean}) {
     password:""
   });
 
+  const requestBody = {
+    email : inputs.email,
+    password: inputs.password
+  }
+
   const handelChangeInput=(e:React.ChangeEvent<HTMLInputElement>)=>{
     setInputs({
         ...inputs,
@@ -59,7 +64,29 @@ export default function AuthModal(SignIn:{isSignIn:boolean}) {
       console.log(responseData);
       }
       else{
-  
+        const response = await fetch('/api/auth/signin', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(requestBody),
+        });
+
+        const responseData = await response.json();
+        if (responseData) {          
+          const meResponse = await fetch('/api/auth/me', {
+            method: 'GET', 
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${responseData.token}`,
+            },
+          });        
+          const meData = await meResponse.json();        
+          
+          console.log(meData);
+        } else {          
+          console.error('Authorization token not found in the response');
+        }
       }
     }
     catch{
